@@ -32,8 +32,8 @@ const limiter = rateLimit({ windowMs: 60 * 1000, max: 120 }); // 120 req/min per
 app.use(limiter);
 
 // ─── Directory setup ──────────────────────────────────────────────────────────
-const DATA_DIR        = path.resolve(path.join(__dirname, 'data'));
-const UPLOADS_DIR     = path.resolve(path.join(__dirname, 'uploads', 'backgrounds'));
+const DATA_DIR        = process.env.DATA_DIR ? path.resolve(process.env.DATA_DIR) : path.resolve(path.join(__dirname, 'data'));
+const UPLOADS_DIR     = process.env.UPLOADS_DIR ? path.resolve(process.env.UPLOADS_DIR) : path.resolve(path.join(__dirname, 'uploads', 'backgrounds'));
 const SETTINGS_FILE   = path.resolve(path.join(DATA_DIR, 'settings.json'));
 const HISTORY_FILE    = path.resolve(path.join(DATA_DIR, 'history.json'));
 const MOCKUPS_DIR     = path.resolve(path.join(DATA_DIR, 'mockups'));
@@ -159,7 +159,7 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 
 // Serve Vite production build
-app.use(express.static('dist'));
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // ─── Multer — background image upload ────────────────────────────────────────
 // Security: only PNG/JPG allowed, max 10MB, UUID filename, stored outside web root
@@ -1249,12 +1249,13 @@ cleanupOldMockups();
 
 // React Router Catch-All (Must be right before app.listen)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 // ─── Start ─────────────────────────────────────────────────────────────────────
 // Bind to localhost by default to reduce accidental exposure. Allow override via BIND_HOST env var.
 const BIND_HOST = process.env.BIND_HOST || '127.0.0.1';
-app.listen(PORT, BIND_HOST, () => {
-  console.log(`PrintFlow server running on http://${BIND_HOST}:${PORT}`);
+export const server = app.listen(PORT, BIND_HOST, () => {
+  const actualPort = server.address().port;
+  console.log(`PrintFlow server running on http://${BIND_HOST}:${actualPort}`);
 });

@@ -3,11 +3,34 @@
   "version": "1.0.0",
   "description": "Automate Printify uploads and Shopify publishing",
   "type": "module",
+  "main": "main.js",
   "scripts": {
     "dev": "concurrently \"node server.js\" \"vite --port 3006\"",
     "build": "vite build",
     "start": "node server.js",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron:start": "vite build && electron .",
+    "electron:build": "vite build && electron-builder --win"
+  },
+  "build": {
+    "appId": "com.furifix.printflow",
+    "productName": "PrintFlow",
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "runAfterFinish": true
+    },
+    "files": [
+      "dist/**/*",
+      "server.js",
+      "main.js",
+      "package.json",
+      "node_modules/**/*"
+    ]
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -26,6 +49,8 @@
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.19",
     "concurrently": "^8.2.2",
+    "electron": "^42.4.1",
+    "electron-builder": "^26.15.3",
     "postcss": "^8.4.38",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
